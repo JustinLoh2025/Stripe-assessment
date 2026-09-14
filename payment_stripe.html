@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create and save the payment method - sample </title>
+        <script src="https://js.stripe.com/dahlia/stripe.js"></script>
+    </head>
+    <body>
+        <h2>Create your payment method </h2>
+        <form id="setup-form">
+            <div id="payment-element"></div>
+            <button type="submit">Create Payment Method</button>
+        </form>
+        <script>
+            const stripe = Stripe("{{Stripe_Publishable_key}}");
+            const clientSecret = "{{SetupIntent_Client_Secret}}";
+
+            const stripeElement = stripe.elements({
+                clientSecret: clientSecret
+            });
+
+            const paymentElement = stripeElement.create("payment");
+            paymentElement.mount("#payment-element");
+
+            const stripeForm = document.getElementById("setup-form");
+            stripeForm.addEventListener("submit", async(event) => {
+                event.preventDefault();
+
+                const {error} = await stripe.confirmSetup({
+                    elements: stripeElement,
+                    confirmParams: {
+                        return_url: "http://localhost:4242/success.html"
+                    }
+                });
+
+                if (error) {
+                    console.error(error.message);
+                }
+            });
+
+        </script>
+    </body>
+</html>
